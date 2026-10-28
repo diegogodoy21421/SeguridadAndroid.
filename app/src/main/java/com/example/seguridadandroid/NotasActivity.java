@@ -29,6 +29,7 @@ public class NotasActivity extends AppCompatActivity {
     private TextView tvEstadoNotas;
     private Button btnGuardarNota;
     private Button btnCerrarSesion;
+    private Button btnAbrirMapa;
 
     private ArrayAdapter<String> adapter;
 
@@ -81,8 +82,9 @@ public class NotasActivity extends AppCompatActivity {
         tvEstadoNotas = findViewById(R.id.tvEstadoNotas);
         btnGuardarNota = findViewById(R.id.btnGuardarNota);
         btnCerrarSesion = findViewById(R.id.btnCerrarSesion);
+        btnAbrirMapa = findViewById(R.id.btnAbrirMapa);
 
-        // Evita guardar automáticamente el borrador en el estado de la Activity.
+        // Evita guardar el borrador en el estado de la Activity.
         edtNota.setSaveEnabled(false);
 
         tvUsuarioActual.setText(
@@ -105,6 +107,7 @@ public class NotasActivity extends AppCompatActivity {
 
         btnGuardarNota.setOnClickListener(v -> guardarNota());
         btnCerrarSesion.setOnClickListener(v -> confirmarSalida());
+        btnAbrirMapa.setOnClickListener(v -> abrirMapa());
 
         listaNotas.setOnItemClickListener(
                 (parent, view, position, id) -> {
@@ -159,20 +162,34 @@ public class NotasActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (!sesionValida()) {
+        if (!saliendo && !sesionValida()) {
             volverAlLogin();
         }
     }
 
     private boolean sesionValida() {
-        return idUsuario > 0 &&
-                Sesion.obtenerId() == idUsuario;
+        return idUsuario > 0
+                && Sesion.obtenerId() == idUsuario;
     }
 
     private boolean puedeActualizarPantalla() {
-        return !isFinishing() &&
-                !isDestroyed() &&
-                sesionValida();
+        return !isFinishing()
+                && !isDestroyed()
+                && sesionValida();
+    }
+
+    private void abrirMapa() {
+        if (procesando || saliendo) {
+            return;
+        }
+
+        if (!sesionValida()) {
+            volverAlLogin();
+            return;
+        }
+
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
     }
 
     private void cargarNotas() {
@@ -342,6 +359,7 @@ public class NotasActivity extends AppCompatActivity {
         procesando = ocupado;
         btnGuardarNota.setEnabled(!ocupado);
         btnCerrarSesion.setEnabled(!ocupado);
+        btnAbrirMapa.setEnabled(!ocupado);
         edtNota.setEnabled(!ocupado);
     }
 
@@ -371,8 +389,8 @@ public class NotasActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
 
         intent.addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+                Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TASK
         );
 
         startActivity(intent);

@@ -30,7 +30,7 @@ El identificador del propietario se incorpora como dato autenticado adicional me
 
 ## 4. Comprobar la sesión y la propiedad de los datos
 
-**Implementación:** `Sesion.java` mantiene el usuario autenticado en memoria. `NotasActivity.java` verifica la sesión; la consulta de notas filtra por `usuario_id` y la eliminación exige tanto el identificador de la nota como el del propietario. La actividad de notas tiene `android:exported="false"`.
+**Implementación:** `Sesion.java` mantiene el usuario autenticado en memoria. `NotasActivity.java` verifica la sesión; la consulta de notas filtra por `usuario_id` y la eliminación exige tanto el identificador de la nota como el del propietario. Las actividades de notas y mapa tienen `android:exported="false"`. La pantalla del mapa también comprueba que la sesión siga perteneciendo al usuario autenticado.
 
 **Impacto:** evita que la interfaz consulte o elimine notas de otra cuenta mediante operaciones que omitan al propietario. Al cerrar sesión se limpia el estado de autenticación y la pila de navegación.
 
@@ -44,6 +44,22 @@ El identificador del propietario se incorpora como dato autenticado adicional me
 
 **Límite:** estas medidas deben mantenerse en futuras versiones. La firma identifica al publicador y permite controlar actualizaciones; no cifra el contenido del APK.
 
+## 6. Pedir ubicación únicamente al utilizar su función
+
+**Implementación:** `MapsActivity.java` solicita los permisos de ubicación al pulsar el botón correspondiente, acepta ubicación precisa o aproximada y permite explorar el mapa si se deniega el acceso. Utiliza una consulta de ubicación y cancela la solicitud pendiente cuando la pantalla deja de estar visible. No solicita permiso de ubicación en segundo plano.
+
+**Impacto:** permite al usuario decidir cuándo compartir su posición y limita el acceso de la aplicación a la función utilizada. El código no incorpora las coordenadas a las notas ni a la base de datos.
+
+**Límite:** la ubicación depende del dispositivo y puede ser aproximada o simulada. Google Maps utiliza servicios externos; no debe afirmarse que todo el funcionamiento sea exclusivamente local.
+
+## 7. Configurar red y API key fuera del código fuente
+
+**Implementación:** el manifiesto establece `android:usesCleartextTraffic="false"`. Gradle lee `MAPS_API_KEY` desde `local.properties`, que se mantiene fuera de Git, y utiliza un placeholder en el manifiesto.
+
+**Impacto:** expresa la política de rechazo de conexiones en claro y evita escribir la clave directamente en archivos fuente compartidos.
+
+**Límite:** la clave está incluida en el APK. El administrador de Google Cloud debe revisar restricciones de paquete, certificado y API; esa configuración no ha sido verificada. No se implementa pinning de certificados ni se afirma protección completa frente a MITM.
+
 ## Trabajo fuera de la interfaz
 
 Las operaciones de base de datos y derivación criptográfica se ejecutan mediante un ejecutor, lo que evita bloquear la interfaz durante tareas costosas.
@@ -54,3 +70,5 @@ Las operaciones de base de datos y derivación criptográfica se ejecutan median
 - [Android: respaldos automáticos](https://developer.android.com/identity/data/autobackup)
 - [Android: firma de aplicaciones](https://developer.android.com/studio/publish/app-signing)
 
+
+- [Google Maps: protección y restricciones de API keys](https://developers.google.com/maps/api-security-best-practices)

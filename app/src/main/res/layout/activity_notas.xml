@@ -88,12 +88,27 @@
 
     </FrameLayout>
 
-    <Button
-        android:id="@+id/btnCerrarSesion"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:minHeight="48dp"
-        android:text="Cerrar sesión" />
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <Button
+            android:id="@+id/btnAbrirMapa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Abrir mapa" />
+
+        <Button
+            android:id="@+id/btnCerrarSesion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="Cerrar sesión" />
+
+    </LinearLayout>
 
 </LinearLayout>

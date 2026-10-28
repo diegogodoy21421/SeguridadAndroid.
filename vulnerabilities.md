@@ -9,7 +9,10 @@ Los reportes de MobSF 4.6.2 corresponden a:
 | Versión | Archivo | MD5 | Puntaje |
 |---|---|---|---:|
 | Inicial | `app-debug.apk` | `d55e0efe16977f21eaa1d48d133ea82e` | 45/100 |
-| Final | `app-release.apk` | `a56db093db31f7069f820d401274bd35` | 73/100 |
+| Release sin Maps | `app-release.apk` | `a56db093db31f7069f820d401274bd35` | 73/100 |
+| Release con Maps, vigente | `app-release.apk` | `4d4b21b25b259809a4d816becaceb300` | 73/100 |
+
+El reporte vigente se generó para el análisis del 28 de octubre de 2026. Su APK mide 12,52 MB y tiene SHA-256 `b1115c2eaa5a6f83aec174a9d68e32762c3d4a81366ff70b59d16c100fc608ed`.
 
 El reporte inicial registra dos hallazgos altos y tres medios; el final registra cero altos y dos medios. No se han confirmado tres vulnerabilidades críticas. Las severidades de la herramienta deben conservarse y evaluarse según el contexto de uso.
 
@@ -62,6 +65,18 @@ MobSF advierte sobre el uso de SQLite. En `DatabaseHelper.java` se revisaron est
 - Las instrucciones `execSQL` crean estructuras fijas y no incorporan entradas del usuario.
 
 No se confirmó una inyección SQL en esos métodos. La advertencia se conserva como punto de revisión, sin presentarla como una explotación demostrada.
+
+## Revisión de Google Maps y ubicación
+
+El reporte vigente registra `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_COARSE_LOCATION` y `ACCESS_FINE_LOCATION`. La categoría Android «dangerous» de los dos permisos de ubicación implica autorización durante el uso; no equivale a una vulnerabilidad crítica. La lista de permisos frecuentemente utilizados por malware tampoco demuestra que esta aplicación sea maliciosa.
+
+En el código incorporado, la consulta se solicita al pulsar «Mostrar mi ubicación», admite permiso preciso o aproximado y muestra un mensaje si no obtiene una posición. La pantalla comprueba la sesión y `MapsActivity` se declara no exportada. No se solicita ubicación en segundo plano ni se escriben coordenadas en la base de datos de notas.
+
+El manifiesto configura `android:usesCleartextTraffic="false"`. Es una política de rechazo de tráfico en claro para los componentes que la respetan; no demuestra por sí sola resistencia completa a ataques de red.
+
+La API key se lee desde `local.properties`, excluido de Git, y se incorpora al manifiesto al compilar. Puede recuperarse del APK: la protección depende también de las restricciones de API, paquete y certificado configuradas por su administrador. No se han verificado esas restricciones ni se afirma que estén aplicadas. Es una revisión pendiente, no un nuevo hallazgo alto confirmado por MobSF.
+
+El resumen muestra un «hotspot» sin detallar en este PDF su regla concreta. Se conserva como elemento por revisar y no se le asigna una severidad inventada. Las detecciones de APKiD incluyen avisos de análisis de DEX/YARA; no prueban que el proyecto haya implementado DexGuard.
 
 ## Controles adicionales observados
 

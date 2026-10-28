@@ -32,15 +32,15 @@ Estos consejos permiten conservar los controles existentes y orientar futuras fu
 
 **Comprobación:** registrar el comportamiento ante intentos fallidos consecutivos, rotación de pantalla y reinicio de la aplicación.
 
-## 4. Proteger cualquier futura comunicación de red
+## 4. Mantener la política de red segura
 
-**Recomendación:** si se agrega sincronización o una API, utilizar HTTPS, validar certificados y rechazar conexiones inseguras. No incorporar verificadores que acepten cualquier certificado.
+**Recomendación:** conservar el rechazo de tráfico en claro, utilizar HTTPS en futuras APIs y mantener la validación normal de certificados. No incorporar verificadores que acepten cualquier certificado.
 
-**Aplicación al proyecto:** el alcance actual es local; este consejo se aplica a una futura integración de red. El cifrado de notas en SQLite no sustituye la protección del transporte.
+**Aplicación al proyecto:** la versión con Maps utiliza Internet y declara `android:usesCleartextTraffic="false"`. Las cuentas y notas continúan en SQLite local. No se ha implementado pinning ni un servidor propio.
 
-**Impacto esperado:** reducir exposición y manipulación de datos durante su transmisión, incluidos ataques de intermediario.
+**Impacto esperado:** reducir el riesgo de exposición de información en conexiones en claro. Esta configuración no constituye una prueba completa frente a ataques de intermediario.
 
-**Comprobación:** verificar la configuración de red y probar el rechazo de conexiones HTTP y certificados no confiables cuando exista esa funcionalidad.
+**Comprobación:** revisar el manifiesto resultante y comprobar la política de transporte cuando se agregue cualquier comunicación propia de red.
 
 ## 5. Cuidar las versiones publicadas y sus secretos
 
@@ -52,3 +52,23 @@ Estos consejos permiten conservar los controles existentes y orientar futuras fu
 
 **Comprobación:** revisar los archivos preparados para el commit y el manifiesto resultante del APK, incluyendo componentes añadidos por dependencias.
 
+
+## 6. Revisar las restricciones de la API key de Maps
+
+**Recomendación:** mantener la clave fuera de Git y solicitar al administrador que autorice el paquete Android, las huellas SHA-1 de firma necesarias y únicamente las APIs utilizadas.
+
+**Aplicación al proyecto:** la configuración local ya se lee mediante Gradle. Las restricciones del proyecto de Google Cloud están pendientes de verificación; no deben presentarse como implementadas. No modificar una clave compartida sin coordinación con su administrador.
+
+**Impacto esperado:** limitar usos ajenos al proyecto, incluso si se extrae la clave del APK. Una clave Android incluida en una app no puede tratarse como un secreto inaccesible.
+
+**Comprobación:** verificar Maps en debug y release, con sus firmas autorizadas, y registrar la configuración revisada sin publicar el valor de la clave.
+
+## 7. Comprobar la denegación de ubicación
+
+**Recomendación:** mantener utilizable el mapa aunque se deniegue la ubicación y no ampliar la solicitud a permisos en segundo plano.
+
+**Aplicación al proyecto:** el botón inicia la solicitud y la pantalla informa de la denegación o de una posición no disponible. La ubicación precisa no es obligatoria para aceptar un resultado aproximado.
+
+**Impacto esperado:** respetar la elección del usuario y reducir la recopilación innecesaria de datos.
+
+**Comprobación:** probar permiso concedido, denegado, aproximado y ubicación desactivada. El funcionamiento normal del mapa y la ubicación fue confirmado por el desarrollador; los demás casos deben registrarse por separado, sin darlos por probados.
